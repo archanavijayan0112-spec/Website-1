@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShopForge — Full-Stack E-Commerce Starter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --ink:       #0d0d12;
+    --ink-2:     #16161f;
+    --ink-3:     #1e1e2a;
+    --rule:      #28283a;
+    --violet:    #7b6cff;
+    --violet-lo: rgba(123,108,255,.12);
+    --violet-md: rgba(123,108,255,.25);
+    --lime:      #b8ff57;
+    --lime-lo:   rgba(184,255,87,.08);
+    --text:      #f2f2ff;
+    --muted:     #8888aa;
+    --dim:       #44445a;
+    --mono:      'JetBrains Mono', monospace;
+    --display:   'Bricolage Grotesque', sans-serif;
+  }
+
+  /* ── RESET ───────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: var(--display);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+
+  /* ── UTILS ───────────────────────────────────────────────── */
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--violet);
+    background: var(--violet-lo); border: 1px solid var(--violet-md);
+    padding: 4px 12px; border-radius: 100px;
+  }
+  .tag-lime { color: var(--lime); background: var(--lime-lo); border-color: rgba(184,255,87,.25); }
+
+  /* ── NAV ─────────────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    border-bottom: 1px solid var(--rule);
+    background: rgba(13,13,18,.82);
+    backdrop-filter: blur(14px);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .nav-logo {
+    font-size: 18px; font-weight: 800; letter-spacing: -.4px;
+  }
+  .nav-logo span { color: var(--violet); }
+  .nav-links { display: flex; align-items: center; gap: 4px; }
+  .nav-links a {
+    padding: 6px 14px; border-radius: 8px; font-size: 14px;
+    color: var(--muted); transition: color .15s, background .15s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--ink-3); }
+  .nav-cta {
+    padding: 8px 20px; background: var(--violet); color: #fff !important;
+    border-radius: 8px; font-weight: 600; font-size: 14px;
+    transition: opacity .15s !important; background: var(--violet) !important;
+  }
+  .nav-cta:hover { opacity: .85; background: var(--violet) !important; }
+
+  /* ── HERO ────────────────────────────────────────────────── */
+  .hero {
+    padding: 148px 0 96px;
+    position: relative; overflow: hidden;
+  }
+  /* grid texture */
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: .35;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 100%);
+  }
+  /* glow */
+  .hero::after {
+    content: '';
+    position: absolute; top: -180px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(123,108,255,.22) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: 28px;
+  }
+  .hero-eyebrow { }
+  .hero-h1 {
+    font-size: clamp(44px, 6vw, 80px); font-weight: 800;
+    line-height: 1.0; letter-spacing: -2.5px;
+    max-width: 820px;
+  }
+  .hero-h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--violet) 0%, #c084fc 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 18px; color: var(--muted); max-width: 540px; line-height: 1.75;
+  }
+  .hero-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 28px; background: var(--violet); color: #fff;
+    border-radius: 10px; font-size: 15px; font-weight: 700;
+    transition: opacity .15s, transform .1s;
+  }
+  .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 24px; border: 1px solid var(--rule); color: var(--muted);
+    border-radius: 10px; font-size: 15px; font-weight: 500;
+    transition: border-color .15s, color .15s;
+  }
+  .btn-ghost:hover { border-color: var(--violet); color: var(--text); }
+
+  /* hero browser mock */
+  .hero-browser {
+    margin-top: 56px; position: relative; z-index: 1;
+    border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--rule);
+    box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 1px var(--rule);
+    max-width: 900px; width: 100%;
+  }
+  .browser-bar {
+    background: var(--ink-2); padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .browser-dots { display: flex; gap: 6px; }
+  .dot {
+    width: 11px; height: 11px; border-radius: 50%;
+  }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+  .browser-url {
+    flex: 1; background: var(--ink-3); border-radius: 6px;
+    padding: 5px 12px; font-family: var(--mono); font-size: 12px; color: var(--muted);
+    text-align: center;
+  }
+  .browser-body {
+    background: var(--ink-2);
+    min-height: 420px;
+    display: grid;
+    grid-template-rows: 52px 1fr;
+  }
+  /* mock storefront navbar */
+  .mock-nav {
+    background: rgba(13,13,18,.9); border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center; padding: 0 24px; gap: 20px;
+  }
+  .mock-logo { font-weight: 800; font-size: 15px; }
+  .mock-logo span { color: var(--violet); }
+  .mock-nav-links { display: flex; gap: 12px; flex: 1; }
+  .mock-link { font-size: 12px; color: var(--muted); padding: 4px 10px; border-radius: 6px; }
+  .mock-nav-right { display: flex; gap: 8px; align-items: center; }
+  .mock-cart-btn {
+    background: var(--ink-3); border: 1px solid var(--rule);
+    border-radius: 7px; padding: 4px 10px; font-size: 11px; color: var(--muted);
+    position: relative;
+  }
+  .mock-cart-badge {
+    position: absolute; top: -5px; right: -5px;
+    background: var(--violet); color: white; border-radius: 50%;
+    width: 14px; height: 14px; font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mock-signin { background: var(--violet); color: #fff; border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 600; }
+  /* mock product grid */
+  .mock-content { padding: 20px 24px; }
+  .mock-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .mock-card {
+    background: var(--ink-3); border: 1px solid var(--rule); border-radius: 10px;
+    overflow: hidden;
+  }
+  .mock-card-img {
+    height: 90px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .mock-card-body { padding: 10px; }
+  .mock-cat { font-size: 9px; text-transform: uppercase; letter-spacing: .6px; color: var(--violet); font-family: var(--mono); }
+  .mock-name { font-size: 11px; font-weight: 600; margin-top: 2px; }
+  .mock-price { font-size: 13px; font-weight: 800; margin-top: 6px; font-family: var(--mono); color: var(--text); }
+  .mock-add { font-size: 9px; color: var(--violet); margin-top: 4px; }
+  /* gradient overlay at bottom of mock */
+  .browser-fade {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 100px;
+    background: linear-gradient(to top, var(--ink) 0%, transparent 100%);
+    pointer-events: none; border-radius: 0 0 16px 16px;
+  }
+
+  /* ── LOGOS / TRUST ────────────────────────────────────────── */
+  .trust {
+    padding: 48px 0; border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .trust-inner {
+    display: flex; align-items: center; gap: 40px;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .trust-label { font-size: 12px; color: var(--dim); letter-spacing: .05em; text-transform: uppercase; font-family: var(--mono); }
+  .trust-stack {
+    display: flex; align-items: center; gap: 32px; flex-wrap: wrap;
+  }
+  .trust-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 600; color: var(--muted);
+    opacity: .65; transition: opacity .15s;
+  }
+  .trust-item:hover { opacity: 1; }
+  .trust-icon { font-size: 18px; }
+
+  /* ── FEATURES GRID ────────────────────────────────────────── */
+  .features { padding: 96px 0; }
+  .section-head { text-align: center; margin-bottom: 56px; }
+  .section-title {
+    font-size: clamp(30px, 4vw, 46px); font-weight: 800;
+    letter-spacing: -1.2px; margin-top: 14px; line-height: 1.1;
+  }
+  .section-sub { color: var(--muted); font-size: 16px; margin-top: 14px; max-width: 520px; margin-left: auto; margin-right: auto; }
+
+  .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .feat-card {
+    background: var(--ink-2); padding: 32px;
+    transition: background .2s;
+    position: relative; overflow: hidden;
+  }
+  .feat-card:hover { background: var(--ink-3); }
+  .feat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--violet-md), transparent);
+    opacity: 0; transition: opacity .3s;
+  }
+  .feat-card:hover::before { opacity: 1; }
+  /* rounded corners only on outer cards */
+  .feat-card:nth-child(1) { border-radius: 16px 0 0 0; }
+  .feat-card:nth-child(3) { border-radius: 0 16px 0 0; }
+  .feat-card:nth-child(4) { border-radius: 0 0 0 16px; }
+  .feat-card:nth-child(6) { border-radius: 0 0 16px 0; }
+
+  .feat-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--violet-lo); border: 1px solid var(--violet-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 18px;
+  }
+  .feat-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .feat-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* ── STACK SECTION ────────────────────────────────────────── */
+  .stack { padding: 80px 0; border-top: 1px solid var(--rule); }
+  .stack-inner {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+  }
+  .stack-h2 { font-size: clamp(26px, 3.5vw, 40px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+  .stack-h2 span { color: var(--violet); }
+  .stack-p { color: var(--muted); font-size: 15px; margin-top: 14px; line-height: 1.8; }
+  .stack-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 500;
+    background: var(--ink-3); border: 1px solid var(--rule); color: var(--muted);
+    transition: border-color .15s, color .15s;
+  }
+  .chip:hover { border-color: var(--violet); color: var(--text); }
+  .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--violet); }
+
+  /* code block */
+  .code-block {
+    background: var(--ink-2); border: 1px solid var(--rule); border-radius: 14px;
+    overflow: hidden; font-family: var(--mono); font-size: 13px;
+  }
+  .code-header {
+    background: var(--ink-3); padding: 10px 16px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .code-dots { display: flex; gap: 5px; }
+  .code-filename { font-size: 11px; color: var(--muted); margin-left: 4px; }
+  .code-body { padding: 20px; line-height: 1.9; overflow-x: auto; }
+  .l-dim    { color: var(--dim); }
+  .l-key    { color: #c084fc; }
+  .l-str    { color: var(--lime); }
+  .l-val    { color: #7dd3fc; }
+  .l-comment{ color: #44556a; font-style: italic; }
+
+  /* ── PAGES / ROUTES ───────────────────────────────────────── */
+  .pages { padding: 80px 0; border-top: 1px solid var(--rule); }
+  .pages-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .page-card {
+    background: var(--ink-2); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 20px 22px;
+    display: flex; flex-direction: column; gap: 8px;
+    transition: border-color .2s, background .2s;
+  }
+  .page-card:hover { border-color: var(--violet); background: var(--ink-3); }
+  .page-route {
+    font-family: var(--mono); font-size: 12px; color: var(--violet); font-weight: 500;
+  }
+  .page-name { font-size: 15px; font-weight: 700; }
+  .page-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .page-role {
+    margin-top: auto; padding-top: 10px;
+    font-size: 11px; font-family: var(--mono); text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .role-user { color: var(--violet); }
+  .role-admin { color: var(--lime); }
+  .role-public { color: var(--muted); }
+
+  /* ── SCHEMA ─────────────────────────────────────────────── */
+  .schema { padding: 80px 0; border-top: 1px solid var(--rule); }
+  .schema-inner {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;
+  }
+  .schema-diagram {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .schema-table {
+    background: var(--ink-2); border: 1px solid var(--rule); border-radius: 12px;
+    overflow: hidden;
+  }
+  .schema-thead {
+    background: var(--ink-3); padding: 10px 16px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .schema-tname { font-size: 13px; font-weight: 700; font-family: var(--mono); color: var(--violet); }
+  .schema-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 16px; border-top: 1px solid rgba(40,40,58,.6); font-size: 12px;
+  }
+  .schema-row:first-of-type { border-top: none; }
+  .schema-field { font-family: var(--mono); color: var(--text); }
+  .schema-type  { font-family: var(--mono); color: var(--dim); }
+  .schema-pk    { font-family: var(--mono); font-size: 10px; color: var(--lime); background: var(--lime-lo); padding: 1px 6px; border-radius: 4px; }
+  .schema-fk    { font-family: var(--mono); font-size: 10px; color: var(--violet); background: var(--violet-lo); padding: 1px 6px; border-radius: 4px; }
+  .schema-right { display: flex; flex-direction: column; gap: 20px; padding-top: 8px; }
+
+  /* ── DEPLOY ─────────────────────────────────────────────── */
+  .deploy { padding: 80px 0; border-top: 1px solid var(--rule); }
+  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
+  .step {
+    display: grid; grid-template-columns: 56px 1fr; gap: 20px;
+    padding: 24px 0; border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--violet-lo); border: 1px solid var(--violet-md);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--violet);
+    flex-shrink: 0;
+  }
+  .step-body {}
+  .step-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .step-code {
+    margin-top: 10px; display: inline-block;
+    background: var(--ink-3); border: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 12px; color: var(--lime);
+    padding: 8px 14px; border-radius: 8px; white-space: pre;
+  }
+
+  /* ── CTA STRIP ───────────────────────────────────────────── */
+  .cta-strip {
+    padding: 96px 0; border-top: 1px solid var(--rule);
+    position: relative; overflow: hidden;
+    text-align: center;
+  }
+  .cta-strip::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse, rgba(123,108,255,.14) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-h2 {
+    font-size: clamp(32px, 5vw, 60px); font-weight: 800;
+    letter-spacing: -1.5px; line-height: 1.05;
+    position: relative; z-index: 1;
+  }
+  .cta-h2 em {
+    font-style: normal; color: var(--violet);
+  }
+  .cta-sub { color: var(--muted); font-size: 16px; margin-top: 16px; position: relative; z-index: 1; }
+  .cta-btns { display: flex; gap: 12px; justify-content: center; margin-top: 32px; position: relative; z-index: 1; flex-wrap: wrap; }
+
+  /* ── FOOTER ──────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--rule); padding: 32px 0;
+  }
+  .footer-inner {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .footer-logo { font-size: 16px; font-weight: 800; }
+  .footer-logo span { color: var(--violet); }
+  .footer-note { font-size: 13px; color: var(--dim); font-family: var(--mono); }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { font-size: 13px; color: var(--muted); transition: color .15s; }
+  .footer-links a:hover { color: var(--text); }
+
+  /* ── RESPONSIVE ──────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .feat-grid { grid-template-columns: 1fr 1fr; }
+    .feat-card:nth-child(1) { border-radius: 16px 0 0 0; }
+    .feat-card:nth-child(2) { border-radius: 0 16px 0 0; }
+    .feat-card:nth-child(3) { border-radius: 0; }
+    .feat-card:nth-child(4) { border-radius: 0; }
+    .feat-card:nth-child(5) { border-radius: 0 0 0 16px; }
+    .feat-card:nth-child(6) { border-radius: 0 0 16px 0; }
+    .stack-inner { grid-template-columns: 1fr; }
+    .pages-grid { grid-template-columns: 1fr 1fr; }
+    .schema-inner { grid-template-columns: 1fr; }
+    .mock-grid { grid-template-columns: repeat(2,1fr); }
+    .mock-card:nth-child(3), .mock-card:nth-child(4) { display: none; }
+  }
+  @media (max-width: 600px) {
+    .feat-grid { grid-template-columns: 1fr; }
+    .feat-card { border-radius: 0 !important; }
+    .feat-card:first-child { border-radius: 16px 16px 0 0 !important; }
+    .feat-card:last-child  { border-radius: 0 0 16px 16px !important; }
+    .pages-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .hero-h1 { letter-spacing: -1.5px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="wrap nav-inner">
+    <a href="#" class="nav-logo">Shop<span>Forge</span></a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#stack">Stack</a>
+      <a href="#deploy">Deploy</a>
+      <a href="https://github.com" target="_blank">GitHub ↗</a>
+    </div>
+    <a href="https://github.com" class="nav-links nav-cta" target="_blank">Clone repo</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-inner">
+    <span class="tag">⚡ Open-source starter · MIT License</span>
+    <h1 class="hero-h1">
+      The e-commerce<br/>stack that's<br/><em>already wired up.</em>
+    </h1>
+    <p class="hero-sub">
+      ShopForge is a production-ready Next.js 14 store with auth, cart, admin dashboard, and PostgreSQL — clone it, seed it, ship it.
+    </p>
+    <div class="hero-actions">
+      <a href="https://github.com" class="btn-primary" target="_blank">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        Get on GitHub
+      </a>
+      <a href="#features" class="btn-ghost">See what's included ↓</a>
+    </div>
+
+    <!-- Browser mockup -->
+    <div class="hero-browser">
+      <div class="browser-bar">
+        <div class="browser-dots">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+        </div>
+        <div class="browser-url">localhost:3000</div>
+      </div>
+      <div class="browser-body">
+        <!-- mock nav -->
+        <div class="mock-nav">
+          <div class="mock-logo">Shop<span>Forge</span></div>
+          <div class="mock-nav-links">
+            <span class="mock-link">Shop</span>
+            <span class="mock-link">Orders</span>
+          </div>
+          <div class="mock-nav-right">
+            <div class="mock-cart-btn">
+              🛍
+              <div class="mock-cart-badge">3</div>
+            </div>
+            <div class="mock-signin">Sign in</div>
+          </div>
+        </div>
+        <!-- mock grid -->
+        <div class="mock-content">
+          <div class="mock-grid">
+            <div class="mock-card">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#1e1e2a,#2a1a3a)">🎧</div>
+              <div class="mock-card-body">
+                <div class="mock-cat">Electronics</div>
+                <div class="mock-name">Wireless Headphones</div>
+                <div class="mock-price">$249.99</div>
+                <div class="mock-add">+ Add to cart</div>
+              </div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#1a2a1a,#1e2a2a)">⌨️</div>
+              <div class="mock-card-body">
+                <div class="mock-cat">Electronics</div>
+                <div class="mock-name">Mechanical Keyboard</div>
+                <div class="mock-price">$149.99</div>
+                <div class="mock-add">+ Add to cart</div>
+              </div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#2a1a1a,#2a2a1a)">⌚</div>
+              <div class="mock-card-body">
+                <div class="mock-cat">Electronics</div>
+                <div class="mock-name">Smart Watch Series X</div>
+                <div class="mock-price">$299.99</div>
+                <div class="mock-add">+ Add to cart</div>
+              </div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-card-img" style="background:linear-gradient(135deg,#1a1a2a,#2a1e1a)">👟</div>
+              <div class="mock-card-body">
+                <div class="mock-cat">Clothing</div>
+                <div class="mock-name">Minimalist Sneakers</div>
+                <div class="mock-price">$89.99</div>
+                <div class="mock-add">+ Add to cart</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="browser-fade"></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="trust">
+  <div class="wrap trust-inner">
+    <span class="trust-label">Built with</span>
+    <div class="trust-stack">
+      <div class="trust-item"><span class="trust-icon">▲</span> Next.js 14</div>
+      <div class="trust-item"><span class="trust-icon">🐘</span> PostgreSQL</div>
+      <div class="trust-item"><span class="trust-icon">◭</span> Prisma ORM</div>
+      <div class="trust-item"><span class="trust-icon">🔐</span> NextAuth.js v5</div>
+      <div class="trust-item"><span class="trust-icon">🐻</span> Zustand</div>
+      <div class="trust-item"><span class="trust-icon">🔷</span> TypeScript</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">What's included</span>
+      <h2 class="section-title">Everything a real store needs.</h2>
+      <p class="section-sub">No UI kit. No half-baked demo. Every feature is wired end-to-end — from database to browser.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🛒</div>
+        <div class="feat-title">Product Catalog</div>
+        <div class="feat-desc">Multi-category listing with search, filter by category, featured highlights, and stock badges. Server-rendered for instant load.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🛍️</div>
+        <div class="feat-title">Persistent Cart</div>
+        <div class="feat-desc">Zustand-powered cart that survives page reloads via localStorage. Quantity controls, line totals, and free-shipping threshold.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔐</div>
+        <div class="feat-title">Auth System</div>
+        <div class="feat-desc">NextAuth.js v5 with email/password credentials, bcrypt hashing, JWT sessions, and role-based access (USER / ADMIN).</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💳</div>
+        <div class="feat-title">Checkout & Orders</div>
+        <div class="feat-desc">Shipping address form, order placement via REST API, and a full order history page. Stripe-ready — just swap the payment step.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🛠️</div>
+        <div class="feat-title">Admin Dashboard</div>
+        <div class="feat-desc">Revenue, orders, customers, and product stats at a glance. Add / edit products, update order statuses with a dropdown — all live.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🌱</div>
+        <div class="feat-title">Seed Script</div>
+        <div class="feat-desc">One command loads 8 products across 5 categories, a demo admin, and a demo customer. Ready to demo in under a minute.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK / CODE -->
+<section class="stack" id="stack">
+  <div class="wrap stack-inner">
+    <div>
+      <span class="tag">Tech stack</span>
+      <h2 class="stack-h2">Modern tools.<br/><span>Zero boilerplate.</span></h2>
+      <p class="stack-p">Every dependency was chosen deliberately — no bloat, no vendor lock-in. Swap the database, add Stripe, or extend the admin. The architecture stays out of your way.</p>
+      <div class="stack-chips">
+        <div class="chip"><div class="chip-dot"></div>Next.js App Router</div>
+        <div class="chip"><div class="chip-dot"></div>TypeScript 5</div>
+        <div class="chip"><div class="chip-dot"></div>Prisma ORM</div>
+        <div class="chip"><div class="chip-dot"></div>PostgreSQL</div>
+        <div class="chip"><div class="chip-dot"></div>NextAuth.js v5</div>
+        <div class="chip"><div class="chip-dot"></div>Zustand</div>
+        <div class="chip"><div class="chip-dot"></div>CSS Modules</div>
+        <div class="chip"><div class="chip-dot"></div>bcryptjs</div>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        </div>
+        <span class="code-filename">.env.local</span>
+      </div>
+      <div class="code-body">
+<span class="l-comment"># 1. Copy this file and fill in your values</span>
+<span class="l-key">DATABASE_URL</span><span class="l-dim">=</span><span class="l-str">"postgresql://user:pass@localhost/shopforge"</span>
+
+<span class="l-key">NEXTAUTH_URL</span><span class="l-dim">=</span><span class="l-str">"http://localhost:3000"</span>
+<span class="l-key">NEXTAUTH_SECRET</span><span class="l-dim">=</span><span class="l-str">"openssl rand -base64 32"</span>
+
+<span class="l-comment"># 2. Push schema &amp; seed demo data</span>
+<span class="l-dim">$</span> <span class="l-val">npm run db:push</span>
+<span class="l-dim">$</span> <span class="l-val">npm run db:seed</span>
+
+<span class="l-comment"># 3. Start developing</span>
+<span class="l-dim">$</span> <span class="l-val">npm run dev</span>
+
+<span class="l-comment"># ✓  localhost:3000 is live</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGES / ROUTES -->
+<section class="pages">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Route map</span>
+      <h2 class="section-title">Every page, built.</h2>
+      <p class="section-sub">Twelve routes across shop, auth, checkout, and admin. Nothing stub-only.</p>
+    </div>
+    <div class="pages-grid">
+      <div class="page-card">
+        <div class="page-route">/</div>
+        <div class="page-name">Product Catalog</div>
+        <div class="page-desc">Hero, category filters, search, and responsive product grid with featured items.</div>
+        <div class="page-role role-public">Public</div>
+      </div>
+      <div class="page-card">
+        <div class="page-route">/product/[slug]</div>
+        <div class="page-name">Product Detail</div>
+        <div class="page-desc">Image gallery, description, stock status, add-to-cart button.</div>
+        <div class="page-role role-public">Public</div>
+      </div>
+      <div class="page-card">
+        <div class="page-route">/cart</div>
+        <div class="page-name">Shopping Cart</div>
+        <div class="page-desc">Line items, quantity controls, subtotal, shipping threshold, order summary.</div>
+        <div class="page-role role-public">Public</div>
+      </div>
+      <div class="page-card">
+        <div class="page-route">/checkout</div>
+        <div class="page-name">Checkout</div>
+        <div class="page-desc">Shipping address form, order summary panel, place order → creates DB record.</div>
+        <div class="page-role role-user">Auth required</div>
+      </div>
+      <div class="page-card">
+        <div class="page-route">/orders</div>
+        <div class="page-name">Order History</div>
+        <div class="page-desc">All past orders with status badge, item list, and shipping address.</div>
+        <div class="page-role role-user">Auth required</div>
+      </div>
+      <div class="page-card">
+        <div class="page-route">/login · /register</div>
+        <div class="page-name">Authentication</div>
+        <div class="page-desc">Sign in with credentials. Register creates a hashed account and auto-signs in.</div>
+        <div class="page-role role-public">Public</div>
+      </div>
+      <div class="page-card">
+        <div class="page-route">/admin</div>
+        <div class="page-name">Dashboard</div>
+        <div class="page-desc">Revenue, order count, customer count, product count, recent orders table.</div>
+        <div class="page-role role-admin">Admin only</div>
+      </div>
+      <div class="page-card">
+        <div class="page-route">/admin/products</div>
+        <div class="page-name">Product Manager</div>
+        <div class="page-desc">Full product table with thumbnail, category, price, stock, featured flag, and edit link.</div>
+        <div class="page-role role-admin">Admin only</div>
+      </div>
+      <div class="page-card">
+        <div class="page-route">/admin/orders</div>
+        <div class="page-name">Order Manager</div>
+        <div class="page-desc">All orders with customer details. Status updatable live via dropdown → PATCH API.</div>
+        <div class="page-role role-admin">Admin only</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEMA -->
+<section class="schema" id="schema">
+  <div class="wrap schema-inner">
+    <div>
+      <span class="tag">Database schema</span>
+      <h2 class="section-title" style="text-align:left;margin-top:14px">Five tables.<br/>Fully relational.</h2>
+      <p class="section-sub" style="text-align:left;margin:14px 0 0">Prisma keeps your schema and TypeScript types in sync automatically. Every query is type-safe — no raw SQL surprises.</p>
+      <div class="schema-right">
+        <div class="schema-table">
+          <div class="schema-thead"><span class="schema-tname">Order</span></div>
+          <div class="schema-row"><span class="schema-field">id</span><span><span class="schema-pk">PK</span></span></div>
+          <div class="schema-row"><span class="schema-field">userId</span><span><span class="schema-fk">FK → User</span></span></div>
+          <div class="schema-row"><span class="schema-field">total</span><span class="schema-type">Float</span></div>
+          <div class="schema-row"><span class="schema-field">status</span><span class="schema-type">OrderStatus</span></div>
+          <div class="schema-row"><span class="schema-field">address / city / country</span><span class="schema-type">String</span></div>
+        </div>
+        <div class="schema-table">
+          <div class="schema-thead"><span class="schema-tname">Product</span></div>
+          <div class="schema-row"><span class="schema-field">id</span><span><span class="schema-pk">PK</span></span></div>
+          <div class="schema-row"><span class="schema-field">name / slug</span><span class="schema-type">String</span></div>
+          <div class="schema-row"><span class="schema-field">price</span><span class="schema-type">Float</span></div>
+          <div class="schema-row"><span class="schema-field">images</span><span class="schema-type">String[]</span></div>
+          <div class="schema-row"><span class="schema-field">categoryId</span><span><span class="schema-fk">FK → Category</span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="schema-diagram">
+      <div class="schema-table">
+        <div class="schema-thead"><span class="schema-tname">User</span></div>
+        <div class="schema-row"><span class="schema-field">id</span><span><span class="schema-pk">PK</span></span></div>
+        <div class="schema-row"><span class="schema-field">name</span><span class="schema-type">String?</span></div>
+        <div class="schema-row"><span class="schema-field">email</span><span class="schema-type">String @unique</span></div>
+        <div class="schema-row"><span class="schema-field">password</span><span class="schema-type">String (hashed)</span></div>
+        <div class="schema-row"><span class="schema-field">role</span><span class="schema-type">USER | ADMIN</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-thead"><span class="schema-tname">Category</span></div>
+        <div class="schema-row"><span class="schema-field">id</span><span><span class="schema-pk">PK</span></span></div>
+        <div class="schema-row"><span class="schema-field">name</span><span class="schema-type">String @unique</span></div>
+        <div class="schema-row"><span class="schema-field">slug</span><span class="schema-type">String @unique</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="schema-thead"><span class="schema-tname">OrderItem</span></div>
+        <div class="schema-row"><span class="schema-field">id</span><span><span class="schema-pk">PK</span></span></div>
+        <div class="schema-row"><span class="schema-field">orderId</span><span><span class="schema-fk">FK → Order</span></span></div>
+        <div class="schema-row"><span class="schema-field">productId</span><span><span class="schema-fk">FK → Product</span></span></div>
+        <div class="schema-row"><span class="schema-field">quantity</span><span class="schema-type">Int</span></div>
+        <div class="schema-row"><span class="schema-field">price</span><span class="schema-type">Float</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEPLOY -->
+<section class="deploy" id="deploy">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Ship it</span>
+      <h2 class="section-title">From zero to live in 5 steps.</h2>
+      <p class="section-sub">Deploy free on Vercel with a Neon PostgreSQL database. Both have generous free tiers.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Clone the repo</div>
+          <div class="step-desc">Fork or clone ShopForge from GitHub and install dependencies.</div>
+          <div class="step-code">git clone https://github.com/you/shopforge && npm install</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Create a database</div>
+          <div class="step-desc">Sign up for a free PostgreSQL instance at <strong>neon.tech</strong> or <strong>supabase.com</strong>. Copy the connection string.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Configure environment</div>
+          <div class="step-desc">Copy <code>.env.example</code> → <code>.env.local</code> and paste your DATABASE_URL and a generated NEXTAUTH_SECRET.</div>
+          <div class="step-code">cp .env.example .env.local</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Push schema & seed</div>
+          <div class="step-desc">Prisma pushes your schema to the database, then the seed script loads demo products, categories, and accounts.</div>
+          <div class="step-code">npm run db:push && npm run db:seed</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <div class="step-title">Deploy to Vercel</div>
+          <div class="step-desc">Push to GitHub, import the repo on vercel.com, add your env vars in the dashboard, and deploy. Done.</div>
+          <div class="step-code">git push origin main   # Vercel auto-deploys</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-strip">
+  <div class="wrap">
+    <h2 class="cta-h2">Stop scaffolding.<br/><em>Start shipping.</em></h2>
+    <p class="cta-sub">ShopForge is MIT-licensed. Fork it, extend it, make it yours.</p>
+    <div class="cta-btns">
+      <a href="https://github.com" class="btn-primary" target="_blank">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+      <a href="#features" class="btn-ghost">Read the docs ↓</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap footer-inner">
+    <div class="footer-logo">Shop<span>Forge</span></div>
+    <div class="footer-note">MIT License · Built with Next.js 14</div>
+    <div class="footer-links">
+      <a href="https://github.com" target="_blank">GitHub</a>
+      <a href="#features">Features</a>
+      <a href="#deploy">Deploy</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
